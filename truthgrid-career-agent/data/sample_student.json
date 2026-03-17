@@ -1,0 +1,50 @@
+{
+  "studentId": "sample-001",
+  "name": "Priya Sharma",
+  "age": 22,
+  "field": "marketing",
+  "institution": "CCS University",
+  "city": "Muzaffarnagar",
+  "selfAssessment": {
+    "Digital Marketing": 7,
+    "Content Writing": 8,
+    "Social Media Management": 7,
+    "Data Analysis": 5,
+    "Excel": 6,
+    "Canva": 8,
+    "AI Tools": 7,
+    "Email Marketing": 6
+  },
+  "projectHistory": [
+    {
+      "title": "Local Business Digital Presence Audit",
+      "description": "Audited 5 local Muzaffarnagar businesses, identified zero-cost growth gaps in their digital presence. Produced actionable reports for each.",
+      "toolsUsed": ["Canva", "Google Analytics", "Instagram Insights", "Claude AI"],
+      "shippedToProduction": true,
+      "impactStatement": "One client saw 340% Instagram follower growth in 6 weeks after implementing recommendations",
+      "durationDays": 21
+    },
+    {
+      "title": "TruthGrid Demo Campaign",
+      "description": "Built a complete content strategy for TruthGrid startup launch including LinkedIn posts, landing page copy, and email drip sequence.",
+      "toolsUsed": ["Claude AI", "Canva", "Mailchimp", "Notion"],
+      "shippedToProduction": true,
+      "impactStatement": "Campaign live on LinkedIn with 2,300 impressions in first week, 87 waitlist signups",
+      "durationDays": 14
+    },
+    {
+      "title": "Competitor Analysis: EdTech Platforms India",
+      "description": "Deep analysis of Unacademy, BYJU's, Internshala positioning for TruthGrid differentiation strategy.",
+      "toolsUsed": ["Claude AI", "Google Trends", "SimilarWeb", "Excel"],
+      "shippedToProduction": false,
+      "impactStatement": "Internal document — used to define TruthGrid's 'CIBIL for Skills' positioning",
+      "durationDays": 7
+    }
+  ],
+  "behaviorMetrics": {
+    "avgResponseTimeSeconds": 22,
+    "editCount": 3,
+    "completionRate": 1.0,
+    "revisitCount": 1
+  }
+}

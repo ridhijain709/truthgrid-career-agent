@@ -1,0 +1,39 @@
+{
+  "studentId": "sample-001",
+  "name": "Priya Sharma",
+  "age": 22,
+  "field": "marketing",
+  "institution": "CCS University",
+  "city": "Muzaffarnagar",
+  "selfAssessment": {
+    "Digital Marketing": 7,
+    "Content Writing": 8,
+    "Social Media": 7,
+    "Data Analysis": 5,
+    "AI Tools": 7
+  },
+  "projectHistory": [
+    {
+      "title": "Local Business Digital Audit",
+      "description": "Audited 5 local businesses and gave growth recommendations",
+      "toolsUsed": ["Canva", "Google Analytics", "Claude AI"],
+      "shippedToProduction": true,
+      "impactStatement": "One client saw 340% Instagram growth in 6 weeks",
+      "durationDays": 21
+    },
+    {
+      "title": "TruthGrid Launch Campaign",
+      "description": "Built full content strategy for TruthGrid startup launch",
+      "toolsUsed": ["Claude AI", "Canva", "Notion"],
+      "shippedToProduction": true,
+      "impactStatement": "87 waitlist signups in first week",
+      "durationDays": 14
+    }
+  ],
+  "behaviorMetrics": {
+    "avgResponseTimeSeconds": 22,
+    "editCount": 3,
+    "completionRate": 1.0,
+    "revisitCount": 1
+  }
+}

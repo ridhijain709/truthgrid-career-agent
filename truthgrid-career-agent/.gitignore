@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+benchmarks/last_result.json
+output_report.md
+*.js.map
