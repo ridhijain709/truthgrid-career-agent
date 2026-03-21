@@ -1,0 +1,39 @@
+'use client';
+
+import { ReactNode } from 'react';
+import Sidebar from '@/components/Navigation/Sidebar';
+import Header from '@/components/Navigation/Header';
+import ToastContainer from '@/components/UI/Toast';
+import ErrorBoundary from '@/components/UI/ErrorBoundary';
+import { useApp } from '@/context/AppContext';
+
+interface MainLayoutProps {
+  children: ReactNode;
+}
+
+export default function MainLayout({ children }: MainLayoutProps) {
+  const { notifications, removeNotification } = useApp();
+
+  return (
+    <ErrorBoundary>
+      <div className="flex h-screen bg-background-dark">
+        <Sidebar />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          
+          <main className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+        </div>
+
+        <ToastContainer 
+          notifications={notifications} 
+          onRemove={removeNotification} 
+        />
+      </div>
+    </ErrorBoundary>
+  );
+}
