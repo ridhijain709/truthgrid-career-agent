@@ -101,7 +101,7 @@ export interface SkillScore {
   learnability: number;       // 0–10
   softSkills: number;         // 0–10
   confidence: number;         // 0–1
-  reasoning: Record<string, string>;
+  reasoning: string | Record<string, string>;
 }
 
 export interface JobInsights {

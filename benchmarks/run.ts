@@ -178,7 +178,7 @@ async function runBenchmarks() {
     cases: results,
   };
 
-  writeFileSync("benchmarks/results.json", JSON.stringify(output, null, 2));
+  writeFileSync(`${__dirname}/results.json`, JSON.stringify(output, null, 2));
 
   console.log("\n  Results saved to benchmarks/results.json");
   console.log("  Include this file in your quest submission.");

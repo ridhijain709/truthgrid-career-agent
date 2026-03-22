@@ -86,11 +86,12 @@ async function runAgentLoop(
   state: AgentState & { activeProfile?: StudentProfile; skillScores?: SkillScore; jobInsights?: JobInsights; finalReport?: string; clarificationQuestion?: string },
   config: AgentConfig
 ): Promise<typeof state> {
+  const isTerminalStatus = (status: AgentState["status"]) => status === "done" || status === "failed";
   state.status = "planning";
   log(config, "info", `session ${state.sessionId} started`);
   log(config, "info", `student: ${state.activeProfile?.name} — ${state.activeProfile?.field}`);
 
-  while (!["done", "failed"].includes(state.status) && state.iterationCount < config.maxIterations) {
+  while (!isTerminalStatus(state.status) && state.iterationCount < config.maxIterations) {
     state.iterationCount++;
     log(config, "debug", `iteration ${state.iterationCount}/${config.maxIterations}`);
 
@@ -134,6 +135,7 @@ async function runAgentLoop(
         state.status = "done";
         log(config, "score", `session complete — final score: ${state.output.overallScore}/10,000`);
       } else if (state.clarificationQuestion) {
+        state.status = "clarifying";
         log(config, "warn", "agent paused for clarification");
       } else {
         state.status = "failed";

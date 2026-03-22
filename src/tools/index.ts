@@ -50,12 +50,18 @@ Return ONLY JSON (no markdown): { "topSkills":["..."], "avgSalary":"₹X LPA", "
   try {
     parsed = JSON.parse(raw.replace(/```json|```/g, "").trim()) as JobInsights;
   } catch {
+    const normalizedField = field.toLowerCase();
+    const defaultSkills = normalizedField.includes("software") || normalizedField.includes("computer")
+      ? ["problem solving", "JavaScript", "APIs", "system design", "communication"]
+      : normalizedField.includes("finance")
+        ? ["Excel", "financial modeling", "analysis", "communication", "AI tools"]
+        : ["AI tools", "digital marketing", "data analysis", "communication", "Excel"];
     parsed = {
       field,
-      topSkillsInDemand: ["AI tools", "digital marketing", "data analysis", "communication", "Excel"],
+      topSkillsInDemand: defaultSkills,
       avgSalaryRange: "₹3–5 LPA",
       marketGrowthSignal: "high",
-      topCompaniesHiring: ["Meesho", "Zomato", "HDFC Bank", "TCS"],
+      topCompaniesHiring: ["TCS", "Infosys", "Accenture", "Wipro"],
       studentSkillGap: [],
     };
   }
@@ -67,7 +73,9 @@ export function generateTruthID(studentId: string, studentName: string, skillSco
   const WEIGHTS = { priorityAbility: 0.30, technicalSkills: 0.20, executionSpeed: 0.20, learnability: 0.20, softSkills: 0.10 };
   const rawScore = skillScores.priorityAbility * WEIGHTS.priorityAbility + skillScores.technicalSkills * WEIGHTS.technicalSkills + skillScores.executionSpeed * WEIGHTS.executionSpeed + skillScores.learnability * WEIGHTS.learnability + skillScores.softSkills * WEIGHTS.softSkills;
   const baseScore = Math.round((rawScore / 10) * 9500);
-  const reasoningText = Object.values(skillScores.reasoning ?? {}).join(" ").toLowerCase();
+  const reasoningText = typeof skillScores.reasoning === "string"
+    ? skillScores.reasoning.toLowerCase()
+    : Object.values(skillScores.reasoning ?? {}).join(" ").toLowerCase();
   const matchingSkills = jobInsights.topSkillsInDemand.filter(s => reasoningText.includes(s.toLowerCase()));
   const marketBonus = Math.min(matchingSkills.length * 100, 500);
   const overallScore = Math.min(baseScore + marketBonus, 10000);
@@ -92,7 +100,7 @@ export function generateTruthID(studentId: string, studentName: string, skillSco
     overallScore,
     confidence: skillScores.confidence,
     breakdown,
-    aiReasoning: Object.values(skillScores.reasoning ?? {}).join(" "),
+    aiReasoning: reasoningText,
     jobInsights,
     employerSummary: `${studentName} scored ${overallScore}/10,000 with strongest signal in priority ability and execution.`,
     topStrengths: ["Priority ability", "Execution", "Learnability"],
@@ -152,7 +160,7 @@ export async function benchmarkVsDefault(profile: Partial<StudentProfile>, agent
     studentDescription: `${profile.field ?? "unknown"} student`,
     agentScore,
     defaultClaudeScore: defaultScore,
-    improvementPercent: Math.round(((agentScore - defaultScore) / Math.max(defaultScore, 1)) * 100),
+    improvementPercent: defaultScore === 0 ? 0 : Math.round(((agentScore - defaultScore) / defaultScore) * 100),
     agentLatencyMs,
     defaultLatencyMs,
     dimensionBreakdown: [],
