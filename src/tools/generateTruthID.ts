@@ -27,6 +27,14 @@ export function computeScores(skills: SkillScore, market: JobInsights, behavior:
 
 export async function generateTruthID(studentId: string, skills: SkillScore, market: JobInsights, behavior: BehaviorMetrics): Promise<TruthID> {
   const scores = computeScores(skills, market, behavior);
+  const breakdown = {
+    priorityAbility: scores.priorityAbilityScore,
+    technicalSkills: scores.technicalSkillsScore,
+    executionSpeed: scores.executionSpeedScore,
+    learnability: scores.learnabilityScore,
+    softSkills: scores.softSkillsScore,
+    marketAlignmentBonus: scores.marketAlignmentBonus,
+  };
 
   const prompt = `A student scored ${scores.overallScore}/10,000 on TruthID assessment.
 Breakdown: Priority Ability ${scores.priorityAbilityScore}/3000, Technical ${scores.technicalSkillsScore}/2000, Execution ${scores.executionSpeedScore}/2000, Learnability ${scores.learnabilityScore}/2000, Soft Skills ${scores.softSkillsScore}/1000, Market Bonus +${scores.marketAlignmentBonus}
@@ -49,5 +57,5 @@ Return ONLY valid JSON:
     };
   }
 
-  return { truthIdId: uuidv4(), studentId, ...scores, ...narrative, generatedAt: new Date() };
+  return { truthIdId: uuidv4(), studentId, ...scores, breakdown, jobInsights: market, ...narrative, generatedAt: new Date() };
 }
