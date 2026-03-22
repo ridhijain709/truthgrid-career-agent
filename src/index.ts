@@ -1,12 +1,12 @@
 import "dotenv/config";
 import * as fs from "fs";
 import * as path from "path";
-import { runAgent } from "./agent";
+import { runCareerAgent } from "./agent";
 import { StudentProfile } from "./types";
 
 async function main() {
-  if (!process.env.GOOGLE_API_KEY) {
-    console.error("ERROR: GOOGLE_API_KEY not set in .env file");
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error("ERROR: ANTHROPIC_API_KEY not set in .env file");
     process.exit(1);
   }
 
@@ -14,7 +14,7 @@ async function main() {
   var fileContent = fs.readFileSync(samplePath, "utf-8");
   var profile = JSON.parse(fileContent) as StudentProfile;
 
-  var result = await runAgent(profile);
+  var result = await runCareerAgent(profile);
 
   if (result.report) {
     var outPath = path.join(__dirname, "../output_report.md");

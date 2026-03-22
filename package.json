@@ -4,6 +4,9 @@
   "description": "AI-native skill assessment agent for Indian university students",
   "main": "dist/index.js",
   "scripts": {
+    "setup:ui": "cd truthgrid-ui && npm install",
+    "dev:ui": "cd truthgrid-ui && npm run dev",
+    "build:ui": "cd truthgrid-ui && npm run build",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",

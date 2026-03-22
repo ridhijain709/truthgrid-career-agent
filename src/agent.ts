@@ -86,11 +86,12 @@ async function runAgentLoop(
   state: AgentState & { activeProfile?: StudentProfile; skillScores?: SkillScore; jobInsights?: JobInsights; finalReport?: string; clarificationQuestion?: string },
   config: AgentConfig
 ): Promise<typeof state> {
+  const isTerminalStatus = (status: AgentState["status"]) => status === "done" || status === "failed";
   state.status = "planning";
   log(config, "info", `session ${state.sessionId} started`);
   log(config, "info", `student: ${state.activeProfile?.name} — ${state.activeProfile?.field}`);
 
-  while (state.status !== "done" && state.status !== "failed" && state.iterationCount < config.maxIterations) {
+  while (!isTerminalStatus(state.status) && state.iterationCount < config.maxIterations) {
     state.iterationCount++;
     log(config, "debug", `iteration ${state.iterationCount}/${config.maxIterations}`);
 
@@ -133,7 +134,8 @@ async function runAgentLoop(
       if (state.output) {
         state.status = "done";
         log(config, "score", `session complete — final score: ${state.output.overallScore}/10,000`);
-      } else if (state.status === "clarifying") {
+      } else if (state.clarificationQuestion) {
+        state.status = "clarifying";
         log(config, "warn", "agent paused for clarification");
       } else {
         state.status = "failed";
@@ -183,11 +185,11 @@ Run the full pipeline:
 
 If confidence drops below ${config.confidenceThreshold}, use clarify tool first.`,
     }],
+    toolCallHistory: [],
     status: "idle" as const,
     iterationCount: 0,
-    maxIterations: config.maxIterations,
-    confidence: 1.0,
     startedAt: new Date(),
+    output: null,
     activeProfile: studentProfile,
     skillScores: undefined as SkillScore | undefined,
     jobInsights: undefined as JobInsights | undefined,
@@ -219,17 +221,19 @@ if (process.argv[1]?.endsWith("agent.ts") || process.argv[1]?.endsWith("agent.js
         description: "Built a Claude API-based content automation tool that generated 20 LinkedIn posts/month for a local MSME. Grew their follower count by 340% in 3 months.",
         toolsUsed: ["Claude API", "Google Sheets", "Canva", "Buffer"],
         impactStatement: "Client got 3 inbound leads from LinkedIn within 30 days of launch.",
-        durationWeeks: 4,
+        durationDays: 28,
+        shippedToProduction: true,
       },
       {
         title: "Mamaearth Competitor Analysis Dashboard",
         description: "Scraped and analyzed 10,000+ Amazon reviews for Mamaearth and 5 competitors. Identified sentiment trends and unmet customer needs.",
         toolsUsed: ["Python", "BeautifulSoup", "Google Sheets", "Claude API"],
         impactStatement: "Identified 2 product gaps worth ₹2Cr+ market. Presented to D2C founder.",
-        durationWeeks: 3,
+        durationDays: 21,
+        shippedToProduction: true,
       },
     ],
-    behaviorMetrics: { avgResponseTimeSeconds: 45, editCount: 3, completionRate: 0.98 },
+    behaviorMetrics: { avgResponseTimeSeconds: 45, editCount: 3, completionRate: 0.98, revisitCount: 1 },
     rawFormData: {},
     createdAt: new Date(),
   };

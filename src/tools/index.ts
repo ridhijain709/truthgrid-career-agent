@@ -26,7 +26,7 @@ Return ONLY valid JSON — no markdown, no backticks:
     messages: [{ role: "user", content: JSON.stringify({
       field: profile.field, institution: profile.institution, city: profile.city,
       selfAssessment: profile.selfAssessment,
-      projects: profile.projectHistory?.map(p => ({ title: p.title, description: p.description, toolsUsed: p.toolsUsed, impact: p.impactStatement, durationWeeks: p.durationWeeks })),
+      projects: profile.projectHistory?.map(p => ({ title: p.title, description: p.description, toolsUsed: p.toolsUsed, impact: p.impactStatement, durationDays: p.durationDays })),
       behavior: profile.behaviorMetrics,
     })}],
   });
@@ -41,7 +41,6 @@ export async function researchJobMarket(field: string, location = "India", exper
   const res = await anthropic.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 1000,
-    tools: [{ type: "web_search_20250305" as never, name: "web_search" }],
     messages: [{ role: "user", content: `Top 5 in-demand skills for ${experienceLevel} ${field} jobs in ${location} 2025. Average salary, demand level, top hiring companies.
 Return ONLY JSON (no markdown): { "topSkills":["..."], "avgSalary":"₹X LPA", "demandLevel":"low|medium|high|very_high", "topCompanies":["..."], "source":"..." }` }],
   });
@@ -51,7 +50,20 @@ Return ONLY JSON (no markdown): { "topSkills":["..."], "avgSalary":"₹X LPA", "
   try {
     parsed = JSON.parse(raw.replace(/```json|```/g, "").trim()) as JobInsights;
   } catch {
-    parsed = { topSkills: ["AI tools","digital marketing","data analysis","communication","Excel"], avgSalary: "₹3–5 LPA", demandLevel: "high", topCompanies: ["Meesho","Zomato","HDFC Bank","TCS"], source: "fallback" };
+    const normalizedField = field.toLowerCase();
+    const defaultSkills = normalizedField.includes("software") || normalizedField.includes("computer")
+      ? ["problem solving", "JavaScript", "APIs", "system design", "communication"]
+      : normalizedField.includes("finance")
+        ? ["Excel", "financial modeling", "analysis", "communication", "AI tools"]
+        : ["AI tools", "digital marketing", "data analysis", "communication", "Excel"];
+    parsed = {
+      field,
+      topSkillsInDemand: defaultSkills,
+      avgSalaryRange: "₹3–5 LPA",
+      marketGrowthSignal: "high",
+      topCompaniesHiring: ["TCS", "Infosys", "Accenture", "Wipro"],
+      studentSkillGap: [],
+    };
   }
   console.log(`[researchMarket] done in ${Date.now() - t0}ms`);
   return parsed;
@@ -61,7 +73,10 @@ export function generateTruthID(studentId: string, studentName: string, skillSco
   const WEIGHTS = { priorityAbility: 0.30, technicalSkills: 0.20, executionSpeed: 0.20, learnability: 0.20, softSkills: 0.10 };
   const rawScore = skillScores.priorityAbility * WEIGHTS.priorityAbility + skillScores.technicalSkills * WEIGHTS.technicalSkills + skillScores.executionSpeed * WEIGHTS.executionSpeed + skillScores.learnability * WEIGHTS.learnability + skillScores.softSkills * WEIGHTS.softSkills;
   const baseScore = Math.round((rawScore / 10) * 9500);
-  const matchingSkills = jobInsights.topSkills.filter(s => skillScores.reasoning.toLowerCase().includes(s.toLowerCase()));
+  const reasoningText = typeof skillScores.reasoning === "string"
+    ? skillScores.reasoning.toLowerCase()
+    : Object.values(skillScores.reasoning ?? {}).join(" ").toLowerCase();
+  const matchingSkills = jobInsights.topSkillsInDemand.filter(s => reasoningText.includes(s.toLowerCase()));
   const marketBonus = Math.min(matchingSkills.length * 100, 500);
   const overallScore = Math.min(baseScore + marketBonus, 10000);
   const breakdown = {
@@ -73,7 +88,25 @@ export function generateTruthID(studentId: string, studentName: string, skillSco
     marketAlignmentBonus: marketBonus,
   };
   console.log(`[generateTruthID] ${studentName}: ${overallScore}/10,000`);
-  return { truthIdId: randomUUID(), studentId, overallScore, breakdown, aiReasoning: skillScores.reasoning, confidence: skillScores.confidence, jobInsights, generatedAt: new Date() };
+  return {
+    truthIdId: randomUUID(),
+    studentId,
+    priorityAbilityScore: breakdown.priorityAbility,
+    technicalSkillsScore: breakdown.technicalSkills,
+    executionSpeedScore: breakdown.executionSpeed,
+    learnabilityScore: breakdown.learnability,
+    softSkillsScore: breakdown.softSkills,
+    marketAlignmentBonus: breakdown.marketAlignmentBonus,
+    overallScore,
+    confidence: skillScores.confidence,
+    breakdown,
+    aiReasoning: reasoningText,
+    jobInsights,
+    employerSummary: `${studentName} scored ${overallScore}/10,000 with strongest signal in priority ability and execution.`,
+    topStrengths: ["Priority ability", "Execution", "Learnability"],
+    developmentAreas: jobInsights.studentSkillGap.slice(0, 3),
+    generatedAt: new Date(),
+  };
 }
 
 export function generateReport(truthId: TruthID, studentName: string, targetRole?: string): string {
@@ -100,12 +133,12 @@ Generated: ${new Date().toLocaleDateString("en-IN")}${targetRole ? `\nTarget Rol
 ${aiReasoning}
 
 ## Market Alignment
-In-demand skills: ${jobInsights.topSkills.join(", ")}
-Market demand: ${jobInsights.demandLevel.toUpperCase()} | Avg salary: ${jobInsights.avgSalary}
-Top companies: ${jobInsights.topCompanies.join(", ")}
+In-demand skills: ${jobInsights.topSkillsInDemand.join(", ")}
+Market demand: ${jobInsights.marketGrowthSignal.toUpperCase()} | Avg salary: ${jobInsights.avgSalaryRange}
+Top companies: ${jobInsights.topCompaniesHiring.join(", ")}
 
 ## Recommended Next Steps
-${overallScore >= 7000 ? "→ Ready for interviews. Strong priority definition — test with open-ended problem." : overallScore >= 5000 ? "→ Build 1 more real project. Upskill in: " + jobInsights.topSkills.slice(0,2).join(", ") : "→ 3–6 months structured skill building. Start with: " + jobInsights.topSkills[0]}
+${overallScore >= 7000 ? "→ Ready for interviews. Strong priority definition — test with open-ended problem." : overallScore >= 5000 ? "→ Build 1 more real project. Upskill in: " + jobInsights.topSkillsInDemand.slice(0,2).join(", ") : "→ 3–6 months structured skill building. Start with: " + (jobInsights.topSkillsInDemand[0] ?? "core fundamentals")}
 
 ---
 *Scored by TruthGrid CareerAgent | truthgrid.in*`;
@@ -124,11 +157,12 @@ export async function benchmarkVsDefault(profile: Partial<StudentProfile>, agent
   try { defaultScore = (JSON.parse(raw.replace(/```json|```/g,"").trim()) as {score:number}).score; } catch {}
   return {
     testCaseId: randomUUID(),
+    studentDescription: `${profile.field ?? "unknown"} student`,
     agentScore,
     defaultClaudeScore: defaultScore,
-    improvementPct: Math.round(((agentScore - defaultScore) / defaultScore) * 100),
+    improvementPercent: defaultScore === 0 ? 0 : Math.round(((agentScore - defaultScore) / defaultScore) * 100),
     agentLatencyMs,
     defaultLatencyMs,
-    notes: "TruthGrid agent: India-specific domain, weighted priority_ability 30%, live web search. Default Claude: no domain context, no weighting, no tools.",
+    dimensionBreakdown: [],
   };
 }

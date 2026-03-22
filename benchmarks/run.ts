@@ -27,10 +27,11 @@ const TEST_CASES: StudentProfile[] = [
         description: "Claude API automation that grew a client's LinkedIn 340% in 3 months",
         toolsUsed: ["Claude API", "Google Sheets", "Buffer"],
         impactStatement: "3 inbound leads in 30 days",
-        durationWeeks: 4,
+        durationDays: 28,
+        shippedToProduction: true,
       },
     ],
-    behaviorMetrics: { avgResponseTimeSeconds: 45, editCount: 3, completionRate: 0.98 },
+    behaviorMetrics: { avgResponseTimeSeconds: 45, editCount: 3, completionRate: 0.98, revisitCount: 1 },
     rawFormData: {},
     createdAt: new Date(),
   },
@@ -43,7 +44,7 @@ const TEST_CASES: StudentProfile[] = [
     city: "Noida",
     selfAssessment: { Python: 9, "machine learning": 8, "web dev": 7 },
     projectHistory: [],  // High GPA, no real projects
-    behaviorMetrics: { avgResponseTimeSeconds: 120, editCount: 12, completionRate: 0.85 },
+    behaviorMetrics: { avgResponseTimeSeconds: 120, editCount: 12, completionRate: 0.85, revisitCount: 4 },
     rawFormData: {},
     createdAt: new Date(),
   },
@@ -61,17 +62,19 @@ const TEST_CASES: StudentProfile[] = [
         description: "Built and shipped a WhatsApp automation SaaS with 40 paying customers",
         toolsUsed: ["Node.js", "Twilio", "Supabase", "Stripe"],
         impactStatement: "₹18,000/month recurring revenue",
-        durationWeeks: 6,
+        durationDays: 42,
+        shippedToProduction: true,
       },
       {
         title: "Open source CLI tool",
         description: "GitHub CLI tool for automated code review, 200+ stars",
         toolsUsed: ["TypeScript", "Claude API", "GitHub Actions"],
         impactStatement: "Used by 3 companies",
-        durationWeeks: 3,
+        durationDays: 21,
+        shippedToProduction: true,
       },
     ],
-    behaviorMetrics: { avgResponseTimeSeconds: 30, editCount: 1, completionRate: 1.0 },
+    behaviorMetrics: { avgResponseTimeSeconds: 30, editCount: 1, completionRate: 1.0, revisitCount: 0 },
     rawFormData: {},
     createdAt: new Date(),
   },
@@ -89,10 +92,11 @@ const TEST_CASES: StudentProfile[] = [
         description: "Market entry analysis for a FMCG brand",
         toolsUsed: ["Excel", "PowerPoint"],
         impactStatement: "Presented to VP. No implementation.",
-        durationWeeks: 8,
+        durationDays: 56,
+        shippedToProduction: false,
       },
     ],
-    behaviorMetrics: { avgResponseTimeSeconds: 200, editCount: 25, completionRate: 0.7 },
+    behaviorMetrics: { avgResponseTimeSeconds: 200, editCount: 25, completionRate: 0.7, revisitCount: 10 },
     rawFormData: {},
     createdAt: new Date(),
   },
@@ -110,10 +114,11 @@ const TEST_CASES: StudentProfile[] = [
         description: "No-code bot using Make.com that auto-reconciles GST returns for a CA firm, saving 40 hours/month",
         toolsUsed: ["Make.com", "Google Sheets", "Notion", "Claude API"],
         impactStatement: "CA firm reduced manual work by 70%",
-        durationWeeks: 2,
+        durationDays: 14,
+        shippedToProduction: true,
       },
     ],
-    behaviorMetrics: { avgResponseTimeSeconds: 60, editCount: 5, completionRate: 0.95 },
+    behaviorMetrics: { avgResponseTimeSeconds: 60, editCount: 5, completionRate: 0.95, revisitCount: 2 },
     rawFormData: {},
     createdAt: new Date(),
   },
@@ -146,11 +151,11 @@ async function runBenchmarks() {
 
     console.log(`  TruthGrid Agent:    ${truthId.overallScore.toLocaleString()} / 10,000`);
     console.log(`  Default Claude:     ${benchmark.defaultClaudeScore.toLocaleString()} / 10,000`);
-    console.log(`  Improvement:        +${benchmark.improvementPct}%`);
+    console.log(`  Improvement:        +${benchmark.improvementPercent}%`);
     console.log(`  Agent latency:      ${durationMs}ms`);
     console.log(`  Default latency:    ${benchmark.defaultLatencyMs}ms`);
 
-    totalImprovement += benchmark.improvementPct;
+    totalImprovement += benchmark.improvementPercent;
   }
 
   const avgImprovement = Math.round(totalImprovement / results.length);
@@ -173,10 +178,7 @@ async function runBenchmarks() {
     cases: results,
   };
 
-  writeFileSync(
-    new URL("./results.json", import.meta.url).pathname,
-    JSON.stringify(output, null, 2)
-  );
+  writeFileSync(`${__dirname}/results.json`, JSON.stringify(output, null, 2));
 
   console.log("\n  Results saved to benchmarks/results.json");
   console.log("  Include this file in your quest submission.");

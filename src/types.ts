@@ -11,6 +11,7 @@ export interface StudentProfile {
   projectHistory: Project[];
   behaviorMetrics: BehaviorMetrics;
   rawFormData?: Record<string, unknown>;
+  createdAt?: Date;
 }
 
 export interface SkillMap {
@@ -42,7 +43,7 @@ export interface AgentState {
   taskQueue: Task[];
   memory: ConversationMessage[];
   toolCallHistory: ToolCallRecord[];
-  status: "idle" | "thinking" | "executing" | "done" | "failed";
+  status: "idle" | "thinking" | "planning" | "executing" | "clarifying" | "done" | "failed";
   iterationCount: number;
   startedAt: Date;
   output: TruthID | null;
@@ -75,6 +76,22 @@ export interface ToolCallRecord {
   timestamp: Date;
 }
 
+export interface AgentConfig {
+  model: string;
+  maxTokens: number;
+  maxIterations: number;
+  confidenceThreshold: number;
+  debug: boolean;
+}
+
+export const DEFAULT_CONFIG: AgentConfig = {
+  model: "claude-sonnet-4-20250514",
+  maxTokens: 1000,
+  maxIterations: 8,
+  confidenceThreshold: 0.7,
+  debug: false,
+};
+
 // ─── Tool output types ────────────────────────────────────────────────────────
 
 export interface SkillScore {
@@ -84,7 +101,7 @@ export interface SkillScore {
   learnability: number;       // 0–10
   softSkills: number;         // 0–10
   confidence: number;         // 0–1
-  reasoning: Record<string, string>;
+  reasoning: string | Record<string, string>;
 }
 
 export interface JobInsights {
@@ -109,7 +126,9 @@ export interface TruthID {
   marketAlignmentBonus: number;   // 0–500   (bonus)
   overallScore: number;           // 0–10000
   confidence: number;             // 0–1
+  breakdown: Record<string, number>;
   aiReasoning: string;
+  jobInsights: JobInsights;
   employerSummary: string;
   topStrengths: string[];
   developmentAreas: string[];

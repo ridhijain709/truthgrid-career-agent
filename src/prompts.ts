@@ -117,3 +117,62 @@ Return this exact JSON structure:
 Note: studentSkillGap should be computed by comparing the student's 
 selfAssessment skills vs topSkillsInDemand.
 `;
+
+export const TOOL_DEFINITIONS = [
+  {
+    name: "assess_skills",
+    description: "Assess student practical skills across 5 dimensions. Run this first.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        studentId: { type: "string", description: "The student ID" },
+      },
+      required: ["studentId"],
+    },
+  },
+  {
+    name: "research_market",
+    description: "Research Indian job market for the student's field and location.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        field: { type: "string" },
+        location: { type: "string" },
+        experienceLevel: { type: "string" },
+      },
+      required: ["field"],
+    },
+  },
+  {
+    name: "generate_truth_id",
+    description: "Generate the final TruthID score from assessed skills and market data.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        studentId: { type: "string" },
+      },
+      required: ["studentId"],
+    },
+  },
+  {
+    name: "generate_report",
+    description: "Generate the final employer-ready report from the TruthID.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        targetRole: { type: "string" },
+      },
+    },
+  },
+  {
+    name: "clarify",
+    description: "Ask a clarification question when confidence is low.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        question: { type: "string" },
+      },
+      required: ["question"],
+    },
+  },
+];
