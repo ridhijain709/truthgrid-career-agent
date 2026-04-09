@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.so
+.venv/
+venv/
+env/
+
+# Output files (generated at runtime)
+outputs/*.csv
+outputs/*.json
+outputs/charts/*.png
+outputs/charts/*.svg
+
+# Data files with sensitive content
+data/scored_results.csv
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp
+*.tmp
+*.log
+temp/
+tmp/
+
+# Cache
+.cache/
+*.cache
