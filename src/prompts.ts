@@ -117,3 +117,57 @@ Return this exact JSON structure:
 Note: studentSkillGap should be computed by comparing the student's 
 selfAssessment skills vs topSkillsInDemand.
 `;
+
+// ─── Anthropic tool definitions ───────────────────────────────────────────────
+
+export const TOOL_DEFINITIONS = [
+  {
+    name: "assess_skills",
+    description: "Assess a student's practical skills across 5 dimensions: priority ability, technical skills, execution speed, learnability, and soft skills. Uses the active student profile.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
+    name: "research_market",
+    description: "Research current Indian job market demand, salary ranges, and top hiring companies for a given field and experience level.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        field: { type: "string", description: "Job field or domain (e.g. digital marketing, software engineering)" },
+        location: { type: "string", description: "Location context, defaults to India" },
+        experienceLevel: { type: "string", description: "Experience level: fresher, junior, mid" },
+      },
+    },
+  },
+  {
+    name: "generate_truth_id",
+    description: "Generate the TruthID score (0–10,000) by combining skill scores with job market alignment. Requires assess_skills and research_market to be called first.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
+    name: "generate_report",
+    description: "Generate a formatted employer-ready markdown report from the TruthID score.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        targetRole: { type: "string", description: "Specific job role the student is targeting (optional)" },
+      },
+    },
+  },
+  {
+    name: "clarify",
+    description: "Request additional information from the student when confidence is too low to score accurately.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        question: { type: "string", description: "The clarifying question to ask the student" },
+      },
+      required: ["question"],
+    },
+  },
+];
