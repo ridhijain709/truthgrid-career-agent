@@ -11,6 +11,7 @@ export interface StudentProfile {
   projectHistory: Project[];
   behaviorMetrics: BehaviorMetrics;
   rawFormData?: Record<string, unknown>;
+  createdAt?: Date;
 }
 
 export interface SkillMap {
@@ -21,17 +22,36 @@ export interface Project {
   title: string;
   description: string;
   toolsUsed: string[];
-  shippedToProduction: boolean;
+  shippedToProduction?: boolean;
   impactStatement: string;
-  durationDays: number;
+  durationDays?: number;       // original field
+  durationWeeks?: number;      // alternative (weeks-based input)
 }
 
 export interface BehaviorMetrics {
   avgResponseTimeSeconds: number;
   editCount: number;
   completionRate: number;      // 0–1
-  revisitCount: number;
+  revisitCount?: number;
 }
+
+// ─── Agent config & defaults ──────────────────────────────────────────────────
+
+export interface AgentConfig {
+  model: string;
+  maxTokens: number;
+  maxIterations: number;
+  confidenceThreshold: number;
+  debug: boolean;
+}
+
+export const DEFAULT_CONFIG: AgentConfig = {
+  model: "claude-sonnet-4-20250514",
+  maxTokens: 4096,
+  maxIterations: 10,
+  confidenceThreshold: 0.7,
+  debug: false,
+};
 
 // ─── Agent state ──────────────────────────────────────────────────────────────
 
@@ -42,8 +62,10 @@ export interface AgentState {
   taskQueue: Task[];
   memory: ConversationMessage[];
   toolCallHistory: ToolCallRecord[];
-  status: "idle" | "thinking" | "executing" | "done" | "failed";
+  status: "idle" | "thinking" | "executing" | "done" | "failed" | "clarifying" | "planning";
   iterationCount: number;
+  maxIterations?: number;
+  confidence?: number;
   startedAt: Date;
   output: TruthID | null;
 }
@@ -84,7 +106,8 @@ export interface SkillScore {
   learnability: number;       // 0–10
   softSkills: number;         // 0–10
   confidence: number;         // 0–1
-  reasoning: Record<string, string>;
+  reasoning: string | Record<string, string>;
+  flags?: string[];
 }
 
 export interface JobInsights {
@@ -94,6 +117,7 @@ export interface JobInsights {
   topCompaniesHiring: string[];
   marketGrowthSignal: "high" | "medium" | "low";
   studentSkillGap: string[];
+  source?: string;
 }
 
 // ─── TruthID — the core product output ───────────────────────────────────────
@@ -101,18 +125,20 @@ export interface JobInsights {
 export interface TruthID {
   truthIdId: string;
   studentId: string;
-  priorityAbilityScore: number;   // 0–3000  (30%)
-  technicalSkillsScore: number;   // 0–2000  (20%)
-  executionSpeedScore: number;    // 0–2000  (20%)
-  learnabilityScore: number;      // 0–2000  (20%)
-  softSkillsScore: number;        // 0–1000  (10%)
-  marketAlignmentBonus: number;   // 0–500   (bonus)
-  overallScore: number;           // 0–10000
-  confidence: number;             // 0–1
+  priorityAbilityScore?: number;   // 0–3000  (30%)
+  technicalSkillsScore?: number;   // 0–2000  (20%)
+  executionSpeedScore?: number;    // 0–2000  (20%)
+  learnabilityScore?: number;      // 0–2000  (20%)
+  softSkillsScore?: number;        // 0–1000  (10%)
+  marketAlignmentBonus?: number;   // 0–500   (bonus)
+  overallScore: number;            // 0–10000
+  breakdown?: Record<string, number>;
+  confidence: number;              // 0–1
   aiReasoning: string;
-  employerSummary: string;
-  topStrengths: string[];
-  developmentAreas: string[];
+  employerSummary?: string;
+  topStrengths?: string[];
+  developmentAreas?: string[];
+  jobInsights?: JobInsights;
   generatedAt: Date;
 }
 
@@ -120,13 +146,15 @@ export interface TruthID {
 
 export interface BenchmarkResult {
   testCaseId: string;
-  studentDescription: string;
+  studentDescription?: string;
   agentScore: number;
   defaultClaudeScore: number;
-  improvementPercent: number;
+  improvementPercent?: number;
+  improvementPct?: number;
   agentLatencyMs: number;
   defaultLatencyMs: number;
-  dimensionBreakdown: {
+  notes?: string;
+  dimensionBreakdown?: {
     dimension: string;
     agentScore: number;
     defaultScore: number;
