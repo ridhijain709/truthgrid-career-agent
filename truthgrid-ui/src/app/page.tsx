@@ -126,7 +126,7 @@ export default function HomePage() {
             <p className="text-primary-500 pt-2">{'        = max 10,000'}</p>
           </div>
           <p className="text-gray-400 text-sm text-center mt-4">
-            Why priority ability at 30%? It&apos;s the single most predictive signal of long-term value creation — and the quality MUST named as their top hiring criterion.
+            Why priority ability at 30%? It&apos;s the single most predictive signal of long-term value creation — and the quality explicitly named as the #1 hiring criterion in MUST&apos;s job description.
           </p>
         </div>
       </section>

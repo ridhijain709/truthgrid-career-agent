@@ -75,7 +75,11 @@ function heuristicAssess(profile: StudentProfileInput) {
   const projects = profile.projectHistory ?? [];
   const selfScores = Object.values(profile.selfAssessment ?? {});
   const avgSelf = selfScores.length > 0 ? selfScores.reduce((a, b) => a + b, 0) / selfScores.length : 6;
-  const discountedSelf = avgSelf > 7 ? avgSelf * 0.85 : avgSelf; // discount inflated self-ratings
+  // Discount self-ratings above 7 by 15% — students systematically over-report
+  // skills, and high self-ratings (7-10 across the board) correlate with inflated
+  // scores vs actual project output. This mirrors the same correction applied in
+  // the full AI pipeline's system prompt.
+  const discountedSelf = avgSelf > 7 ? avgSelf * 0.85 : avgSelf;
 
   // Priority ability: are projects substantive and impactful?
   const hasImpactfulProjects = projects.some(p =>

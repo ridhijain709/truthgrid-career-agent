@@ -150,6 +150,10 @@ export function generateTruthID(studentId: string, studentName: string, skillSco
   const baseScore = Math.round((rawScore / 10) * 9500);
 
   // Market alignment bonus: count skills that appear in AI reasoning text
+  // SkillScore.reasoning can be either:
+  //   - string: returned by the Anthropic tool (agent loop in src/agent.ts)
+  //   - Record<string,string>: returned by the Gemini tool (src/tools/assessSkills.ts)
+  // Both formats are normalised to a plain string before matching.
   const reasoningText = (typeof skillScores.reasoning === "string"
     ? skillScores.reasoning
     : Object.values(skillScores.reasoning ?? {}).join(" ")
