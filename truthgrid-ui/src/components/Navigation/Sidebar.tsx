@@ -10,13 +10,15 @@ import {
   FileText, 
   Settings,
   Menu,
-  X
+  X,
+  PlayCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
 
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Live Demo', href: '/demo', icon: PlayCircle, highlight: true },
   { name: 'Students', href: '/students', icon: Users },
   { name: 'Weekly Report', href: '/weekly-report', icon: FileBarChart },
   { name: 'AI Tutor', href: '/ai-tutor', icon: Bot, badge: 3 },
@@ -80,7 +82,8 @@ export default function Sidebar() {
                         'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group',
                         {
                           'bg-primary-500/10 text-primary-500 border border-primary-500/20': active,
-                          'text-gray-400 hover:text-white hover:bg-gray-700': !active,
+                          'text-gray-400 hover:text-white hover:bg-gray-700': !active && !item.highlight,
+                          'text-primary-400 hover:text-primary-300 hover:bg-primary-500/10': !active && item.highlight,
                         }
                       )}
                     >
