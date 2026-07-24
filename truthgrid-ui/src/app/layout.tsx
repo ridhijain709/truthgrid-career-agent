@@ -3,9 +3,19 @@ import './globals.css';
 import { AppProvider } from '@/context/AppContext';
 
 export const metadata: Metadata = {
-  title: 'TruthGrid Career Agent',
-  description: 'AI-powered career assessment and insights platform for Indian university students',
-  keywords: ['career assessment', 'AI', 'students', 'TruthID', 'skills', 'India'],
+  title: 'TruthGrid — Healthcare Content Intelligence',
+  description: 'AI-powered healthcare content scoring and compliance insight platform for India\'s healthcare, wellness & pharma content teams.',
+  keywords: [
+    'healthcare content intelligence',
+    'medical content compliance',
+    'AYUSH guidelines',
+    'CDSCO compliance',
+    'pharma content India',
+    'health content scoring',
+    'wellness content audit',
+    'TruthGrid',
+    'India healthcare',
+  ],
   authors: [{ name: 'TruthGrid' }],
   icons: {
     icon: '/favicon.ico',
